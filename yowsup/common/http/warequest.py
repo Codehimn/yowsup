@@ -1,4 +1,5 @@
 import urllib,sys, os, logging
+import ssl, socket
 import hashlib
 from .waresponseparser import ResponseParser
 from yowsup.env import S40YowsupEnv
@@ -158,6 +159,10 @@ class WARequest(object):
         conn = httplib.HTTPSConnection(host ,port) if port == 443 else httplib.HTTPConnection(host ,port)
 
         logger.debug("Sending %s request to %s" % (reqType, path))
+        
+        sock = socket.create_connection((conn.host, conn.port), conn.timeout, conn.source_address)
+        conn.sock = ssl.wrap_socket(sock, conn.key_file, conn.cert_file, ssl_version=ssl.PROTOCOL_TLSv1)
+        
         conn.request(reqType, path, params, headers);
 
         response = conn.getresponse()
